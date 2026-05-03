@@ -1,9 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-
-let persons = require("./data.json");
+const Person = require("./models/person");
 
 morgan.token("body", (req) => {
   return req.method === "POST" ? JSON.stringify(req.body) : "";
@@ -17,7 +17,9 @@ app.use(
 );
 
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  Person.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
 
 app.get("/api/info", (req, res) => {
@@ -44,28 +46,18 @@ app.get("/api/persons/:id", (req, res) => {
 app.post("/api/persons", (req, res) => {
   const body = req.body;
 
-  if (!body.name) {
-    return res.status(400).json({ error: "name is missing" });
+  if (!body.name || !body.number) {
+    return res.status(400).json({ error: "name or number missing" });
   }
 
-  if (!body.number) {
-    return res.status(400).json({ error: "number is missing" });
-  }
-
-  const nameExists = persons.some((p) => p.name === body.name);
-  if (nameExists) {
-    return res.status(400).json({ error: "name must be unique" });
-  }
-
-  const newPerson = {
-    id: String(Math.floor(Math.random() * 1000000)),
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons = persons.concat(newPerson);
-
-  res.json(newPerson);
+  person.save().then((savedPerson) => {
+    res.json(savedPerson);
+  });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
