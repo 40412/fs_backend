@@ -5,3 +5,12 @@ content-type: application/json
     "name": "New Guy 2",
     "number": "00040066"
 }
+
+###
+POST https://project-j1vzv.vercel.app/api/persons
+content-type: application/json
+
+{
+    "name": "New Guy 2",
+    "number": "00040066"
+}
