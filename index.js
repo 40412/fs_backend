@@ -20,10 +20,6 @@ app.get("/api/persons", (req, res) => {
   res.json(persons);
 });
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/dist/index.html");
-});
-
 app.get("/api/info", (req, res) => {
   const count = persons.length;
   const time = new Date();
