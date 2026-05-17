@@ -12,7 +12,6 @@ morgan.token("body", (req) => {
 
 app.use(cors());
 app.use(express.json());
-app.use(errorHandler);
 app.use(express.static("dist"));
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
@@ -47,21 +46,17 @@ app.get("/api/persons/:id", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (req, res) => {
-  const body = req.body;
+app.post("/api/persons", (req, res, next) => {
+  const { name, number } = req.body;
 
-  if (!body.name || !body.number) {
-    return res.status(400).json({ error: "name or number missing" });
-  }
+  const person = new Person({ name, number });
 
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  });
-
-  person.save().then((savedPerson) => {
-    res.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      res.json(savedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
@@ -90,6 +85,8 @@ app.delete("/api/persons/:id", (req, res, next) => {
     })
     .catch((error) => next(error));
 });
+
+app.use(errorHandler);
 
 const PORT = 3001;
 app.listen(PORT, () => {
